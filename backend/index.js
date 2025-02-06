@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -12,11 +13,13 @@ app.use(cors({
     credentials: true
 }));
 
-const USER_FILE = './data/users.json';
-const DATA_FILE = './data/userdata.json';
+// Use /tmp directory for serverless environment
+const USER_FILE = path.join('/tmp', 'users.json');
+const DATA_FILE = path.join('/tmp', 'userdata.json');
 
-if (!fs.existsSync('./data')) {
-    fs.mkdirSync('./data');
+// Ensure /tmp/data exists
+if (!fs.existsSync(path.dirname(USER_FILE))) {
+    fs.mkdirSync(path.dirname(USER_FILE), { recursive: true });
 }
 
 if (!fs.existsSync(USER_FILE)) {
@@ -119,8 +122,7 @@ app.get('/read', authenticateToken, (req, res) => {
     }
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
